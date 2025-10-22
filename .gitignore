@@ -3,3 +3,9 @@ __pycache__/
 
 .idea/
 .python-version
+
+
+tlingit_app/build/
+tlingit_app/dist/
+
+electron/node_modules/

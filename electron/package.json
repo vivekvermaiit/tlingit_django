@@ -1,0 +1,32 @@
+{
+  "name": "electron",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.tlingit.app",
+    "productName": "Tlingit App",
+    "directories": {
+      "output": "../dist_electron"
+    },
+    "files": [
+      "**/*",
+      "../tlingit_app/dist/tlingit_backend"
+    ],
+    "mac": {
+      "category": "public.app-category.education"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "electron": "^38.3.0",
+    "electron-builder": "^26.0.12"
+  }
+}
