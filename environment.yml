@@ -1,0 +1,6 @@
+name: tlingit_env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - django

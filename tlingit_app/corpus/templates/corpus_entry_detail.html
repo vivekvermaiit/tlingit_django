@@ -1,0 +1,16 @@
+{% if corpus_entry %}
+  <h1>{{ corpus_entry.title }}</h1>
+
+  <div>
+    <p><strong>Number:</strong> {{ corpus_entry.number }}</p>
+    <p><strong>Author:</strong> {{ corpus_entry.author }}</p>
+    <p><strong>Clan:</strong> {{ corpus_entry.clan }}</p>
+    <p><strong>Source:</strong> {{ corpus_entry.source }}</p>
+    <p><strong>Transcriber:</strong> {{ corpus_entry.transcriber }}</p>
+    <p><strong>Translator:</strong> {{ corpus_entry.translator }}</p>
+    <p><strong>Orthography:</strong> {{ corpus_entry.orthography }}</p>
+    <p><strong>Dialect:</strong> {{ corpus_entry.dialect }}</p>
+  </div>
+{% else %}
+  <p>No entry found with this number.</p>
+{% endif %}
