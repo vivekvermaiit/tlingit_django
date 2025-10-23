@@ -1,7 +1,9 @@
 {
-  "name": "electron",
+  "name": "tlingit-electron",
   "version": "1.0.0",
   "main": "main.js",
+  "license": "MIT",
+  "description": "Standalone Electron + Django app for Tlingit corpus exploration.",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder"
@@ -13,19 +15,36 @@
       "output": "../dist_electron"
     },
     "files": [
-      "**/*",
-      "../tlingit_app/dist/tlingit_backend"
+      {
+        "from": "../tlingit_app/dist/tlingit_backend",
+        "to": "backend/tlingit_backend"
+      },
+      "**/*"
     ],
+
+    "extraResources": [
+      {
+        "from": "../tlingit_app/dist/tlingit_backend",
+        "to": "backend/tlingit_backend",
+        "filter": ["**/*"]
+      }
+    ],
+
+
     "mac": {
-      "category": "public.app-category.education"
+      "category": "public.app-category.education",
+      "target": "dmg",
+      "identity": null,
+      "sign": false
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
     }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "cross-env": "^10.1.0",
+  "devDependencies": {
     "electron": "^38.3.0",
     "electron-builder": "^26.0.12"
   }

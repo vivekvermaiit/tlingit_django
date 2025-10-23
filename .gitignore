@@ -4,8 +4,8 @@ __pycache__/
 .idea/
 .python-version
 
-
+.DS_Store
 tlingit_app/build/
 tlingit_app/dist/
-
+dist_electron/
 electron/node_modules/

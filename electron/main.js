@@ -14,15 +14,23 @@ const START_TIMEOUT_MS = 20000; // max time to wait for server (20s)
 const POLL_INTERVAL_MS = 300;   // how often to poll
 
 function getDjangoBinaryPath() {
-  // Electron __dirname will be tlingit_django/electron
-  // PyInstaller binary is at ../tlingit_app/dist/tlingit_backend
-  let binary = path.join(__dirname, '..', 'tlingit_app', 'dist', 'tlingit_backend');
+  // In development: ../tlingit_app/dist/tlingit_backend
+  // In production: bundled inside resources/app/backend/
+  let binary;
+
+  if (app.isPackaged) {
+    binary = path.join(process.resourcesPath, 'backend', 'tlingit_backend');
+  } else {
+    binary = path.join(__dirname, '..', 'tlingit_app', 'dist', 'tlingit_backend');
+  }
 
   if (process.platform === 'win32') {
     binary += '.exe';
   }
+
   return binary;
 }
+
 
 function startDjango() {
   const binary = getDjangoBinaryPath();
