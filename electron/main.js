@@ -9,7 +9,7 @@ let mainWindow = null;
 // configure these
 const HOST = '127.0.0.1';
 const PORT = 8000;
-const URL = `http://${HOST}:${PORT}/corpus/entries/001`;
+const URL = `http://${HOST}:${PORT}/corpus/lines`;
 const START_TIMEOUT_MS = 20000; // max time to wait for server (20s)
 const POLL_INTERVAL_MS = 300;   // how often to poll
 

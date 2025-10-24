@@ -5,7 +5,7 @@ a = Analysis(
     ['manage.py'],
     pathex=[],
     binaries=[],
-    datas=[('corpus/templates', 'corpus/templates'), ('db.sqlite3', '.'), ('json_entries', 'json_entries')],
+    datas=[('corpus/templates', 'corpus/templates'), ('corpus/static', 'corpus/static'), ('corpus/templatetags', 'corpus/templatetags'), ('db.sqlite3', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

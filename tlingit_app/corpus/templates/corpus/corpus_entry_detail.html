@@ -16,4 +16,8 @@
   <p>No entry found with this number.</p>
 {% endif %}
 
-<a href="{% url 'lines' %}">Search page</a>
+{% if request.META.HTTP_REFERER %}
+  <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">⬅ Back</a>
+{% else %}
+  <a href="{% url 'lines' %}" class="btn btn-secondary">Search page</a>
+{% endif %}
