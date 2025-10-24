@@ -1,0 +1,31 @@
+/* tlingit_app/static/tlingit_app/css/sentences.css */
+
+.sentences-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sentence {
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.sentence.main {
+    background-color: #fffbe6; /* light yellow */
+}
+
+.sentence.context {
+    background-color: #f5f5f5; /* light gray */
+}
+
+.keyword-highlight {
+    background-color: orange;
+    font-weight: bold;
+}

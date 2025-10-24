@@ -1,0 +1,76 @@
+{% load highlight %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'corpus/css/sentences.css' %}">
+
+
+
+<h1>
+  Corpus Entry:
+  <a href="{% url 'corpus_entry_detail' corpus_entry.number %}">
+    {{ corpus_entry.number }}
+  </a>
+</h1>
+
+<h2>Title: {{ corpus_entry.title }}</h2>
+
+<div class="sentences-container" style="display: flex; gap: 2rem;">
+  <!-- Tlingit Column -->
+  <div class="column" style="flex: 1;">
+    <h3 style="text-align: center;">
+      Tlingit{% if page_tlingit %} (Page {{ page_tlingit }}){% endif %}
+    </h3>
+
+    {% if show_context and prev_sentence %}
+      <div class="sentence context">
+        <strong>Previous sentence:</strong><br>
+        {{ prev_sentence.sentence_tlingit }}
+      </div>
+    {% endif %}
+
+    <div class="sentence main">
+      <strong>Sentence {{ line_number }}:</strong><br>
+      {% if scope == "both" or scope == "tlingit" %}
+        {{ sentence.sentence_tlingit|highlight_text:combo }}
+      {% else %}
+        {{ sentence.sentence_tlingit }}
+      {% endif %}
+    </div>
+
+    {% if show_context and next_sentence %}
+      <div class="sentence context">
+        <strong>Next sentence:</strong><br>
+        {{ next_sentence.sentence_tlingit }}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- English Column -->
+  <div class="column" style="flex: 1;">
+    <h3 style="text-align: center;">
+      English{% if page_english %} (Page {{ page_english }}){% endif %}
+    </h3>
+
+    {% if show_context and prev_sentence %}
+      <div class="sentence context">
+        <strong>Previous sentence:</strong><br>
+        {{ prev_sentence.sentence_english }}
+      </div>
+    {% endif %}
+
+    <div class="sentence main">
+      <strong>Sentence {{ line_number }}:</strong><br>
+      {% if scope == "both" or scope == "english" %}
+        {{ sentence.sentence_english|highlight_text:combo }}
+      {% else %}
+        {{ sentence.sentence_english }}
+      {% endif %}
+    </div>
+
+    {% if show_context and next_sentence %}
+      <div class="sentence context">
+        <strong>Next sentence:</strong><br>
+        {{ next_sentence.sentence_english }}
+      </div>
+    {% endif %}
+  </div>
+</div>
