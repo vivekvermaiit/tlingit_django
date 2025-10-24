@@ -5,6 +5,7 @@ from .models import Line
 from django.core.paginator import Paginator
 from django.db.models import Q
 
+
 # import logging
 # logger = logging.getLogger('corpus')
 # logger.debug("DEBUG TEST from view")
@@ -36,6 +37,7 @@ def sentence_detail(request, id):
     page_english = request.GET.get("page_english")
     line_number = request.GET.get("line_number") or ""
     scope = request.GET.get("scope")
+    origin_url = request.GET.get("origin_url")
 
     prev_sentence = next_sentence = None
     if show_context:
@@ -66,6 +68,13 @@ def sentence_detail(request, id):
         "next_sentence": next_sentence,
         "combo": f"{keyword_text},{keyword_regex}"
     }
+
+    # This origin url is for the case where you go from lines view to sentence to corpus and then when you go back
+    # from corpus to sentence, and press back again you want to see the lines view and not loop corpus -> sentence
+    # --> corpus
+    # So specifically for the sentence page the back button goes to origin_url if it exists. 
+    if origin_url:
+        context["origin_url"] = origin_url
     return render(request, "corpus/sentence_detail.html", context)
 
 
@@ -110,4 +119,3 @@ def lines_view(request):
         "scope": scope,
         "page_obj": page_obj,
     })
-

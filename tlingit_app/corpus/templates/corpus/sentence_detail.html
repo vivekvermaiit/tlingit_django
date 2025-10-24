@@ -75,8 +75,8 @@
   </div>
 </div>
 
-{% if request.META.HTTP_REFERER %}
-  <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">⬅ Back</a>
+{% if origin_url %}
+  <a href="{{ origin_url }}" class="btn btn-secondary">⬅ Back</a>
 {% else %}
   <a href="{% url 'lines' %}" class="btn btn-secondary">Search page</a>
 {% endif %}

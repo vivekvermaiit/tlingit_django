@@ -58,7 +58,7 @@
           <td><a href="{% url 'corpus_entry_detail' line.sentence.corpus_entry.number %}">{{ line.sentence.corpus_entry.number }}</a></td>
           <td>{{ line.sentence.corpus_entry.title }}</td>
           <td>
-            <a href="{% url 'sentence_detail' line.sentence.id %}?{% if query_text %}&keyword_text={{ query_text }}{% endif %}{% if query_regex %}&keyword_regex={{ query_regex }}{% endif %}&show_context=true&page_tlingit={{ line.page_tlingit }}&page_english={{ line.page_english }}&line_number={{ line.line_number }}&scope={{ scope }}">
+            <a href="{% url 'sentence_detail' line.sentence.id %}?{% if query_text %}&keyword_text={{ query_text }}{% endif %}{% if query_regex %}&keyword_regex={{ query_regex }}{% endif %}&show_context=true&page_tlingit={{ line.page_tlingit }}&page_english={{ line.page_english }}&line_number={{ line.line_number }}&scope={{ scope }}&origin_url={{ request.get_full_path|urlencode }}">
               View Sentence
             </a>
           </td>
