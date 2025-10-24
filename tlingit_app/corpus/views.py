@@ -1,6 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from .models import CorpusEntry
 from .models import Sentence
+from .models import Line
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 # import logging
 # logger = logging.getLogger('corpus')
@@ -64,3 +67,47 @@ def sentence_detail(request, id):
         "combo": f"{keyword_text},{keyword_regex}"
     }
     return render(request, "corpus/sentence_detail.html", context)
+
+
+def lines_view(request):
+    query_text = request.GET.get("q")
+    query_regex = request.GET.get("regex")
+    scope = request.GET.get("scope", "both")
+
+    # lines = Line.objects.select_related("sentence__corpus_entry").all()
+    lines = Line.objects.none()
+
+    if query_text:
+        lines = Line.objects.select_related("sentence__corpus_entry")
+        if scope == "english":
+            lines = lines.filter(line_english__icontains=query_text)
+        elif scope == "tlingit":
+            lines = lines.filter(line_tlingit__icontains=query_text)
+        else:
+            lines = lines.filter(
+                Q(line_tlingit__icontains=query_text) |
+                Q(line_english__icontains=query_text)
+            )
+    elif query_regex:
+        lines = Line.objects.select_related("sentence__corpus_entry")
+        if scope == "english":
+            lines = lines.filter(line_english__regex=query_regex)
+        elif scope == "tlingit":
+            lines = lines.filter(line_tlingit__regex=query_regex)
+        else:
+            lines = lines.filter(
+                Q(line_tlingit__regex=query_regex) |
+                Q(line_english__regex=query_regex)
+            )
+
+    paginator = Paginator(lines.order_by("line_number"), 20)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    return render(request, "corpus/lines.html", {
+        "lines": page_obj,
+        "query_text": query_text,
+        "query_regex": query_regex,
+        "scope": scope,
+        "page_obj": page_obj,
+    })
+

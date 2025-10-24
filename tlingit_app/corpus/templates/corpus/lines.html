@@ -1,0 +1,81 @@
+<h1>Search for text in Corpus</h1>
+
+<form method="get" action="{% url 'lines' %}">
+  <div>
+    <label for="q">Search for word or phrase:</label><br>
+    <input type="text" name="q" id="normal-search" size="40" value="{{ query_text|default:'' }}">
+  </div>
+
+  <div>
+    <label for="regex">Regex Search:</label><br>
+    <input type="text" name="regex" id="regex-search" size="40" value="{{ query_regex|default:'' }}">
+  </div>
+
+  <div>
+    <p>Search in:</p>
+    <label><input type="radio" name="scope" value="tlingit" {% if scope == 'tlingit' %}checked{% endif %}> Tlingit</label>
+    <label><input type="radio" name="scope" value="english" {% if scope == 'english' %}checked{% endif %}> English</label>
+    <label><input type="radio" name="scope" value="both" {% if scope == 'both' %}checked{% endif %}> Both</label>
+  </div>
+
+  <button type="submit">Search</button>
+</form>
+
+<script>
+    const normalInput = document.getElementById("normal-search");
+    const regexInput = document.getElementById("regex-search");
+
+    normalInput.addEventListener("input", () => {
+        regexInput.disabled = normalInput.value.length > 0;
+    });
+
+    regexInput.addEventListener("input", () => {
+        normalInput.disabled = regexInput.value.length > 0;
+    });
+</script>
+
+{% if page_obj %}
+  <h2>Results:</h2>
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>Tlingit Line</th>
+        <th>English Line</th>
+        <th>Page (Tlingit)</th>
+        <th>Page (English)</th>
+        <th>Corpus Number</th>
+        <th>Corpus Title</th>
+        <th>Sentence Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in page_obj %}
+        <tr>
+          <td>{{ line.line_tlingit }}</td>
+          <td>{{ line.line_english }}</td>
+          <td>{{ line.page_tlingit }}</td>
+          <td>{{ line.page_english }}</td>
+          <td><a href="{% url 'corpus_entry_detail' line.sentence.corpus_entry.number %}">{{ line.sentence.corpus_entry.number }}</a></td>
+          <td>{{ line.sentence.corpus_entry.title }}</td>
+          <td>
+            <a href="{% url 'sentence_detail' line.sentence.id %}?{% if query_text %}&keyword_text={{ query_text }}{% endif %}{% if query_regex %}&keyword_regex={{ query_regex }}{% endif %}&show_context=true&page_tlingit={{ line.page_tlingit }}&page_english={{ line.page_english }}&line_number={{ line.line_number }}&scope={{ scope }}">
+              View Sentence
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if query_text %}&q={{ query_text }}{% endif %}{% if query_regex %}&regex={{ query_regex }}{% endif %}&scope={{ scope }}">Previous</a>
+    {% endif %}
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if query_text %}&q={{ query_text }}{% endif %}{% if query_regex %}&regex={{ query_regex }}{% endif %}&scope={{ scope }}">Next</a>
+    {% endif %}
+  </div>
+{% elif query_text or query_regex %}
+  <p>No results found.</p>
+{% endif %}
