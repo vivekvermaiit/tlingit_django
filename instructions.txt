@@ -1,0 +1,138 @@
+All steps to make app:
+
+Create environment with Django in it. (This took my home-brew python and is using that inside. Python 3.13.7)
+conda create -n tlingit_env django
+
+Activate environment:
+conda activate tlingit_env
+
+On pycharm choose the interpreter to be from conda with the name tlingit_env
+
+To add a library, add it to environment.yml and then run this:
+conda env update -f environment.yml --prune
+
+Create the tlingit_app Django structure (run inside tlingit_django):
+django-admin startproject tlingit_app
+
+Tutorial here:
+https://docs.djangoproject.com/en/5.2/intro/tutorial01/
+
+To run the server:
+cd tlingit_app
+python manage.py runserver
+
+Create an “app” that will have the models etc for this called corpus
+python manage.py startapp corpus
+
+App has things that make logical sense together. Here in our tlingit app corpus, sentence, lines are all related.
+
+Fill the corpus/models file.
+Run migrations:
+python manage.py makemigrations corpus
+python manage.py migrate
+
+Run seed:
+python manage.py seed_corpus
+
+
+Steps for Electron:
+
+
+mkdir electron && cd electron
+npm init -y
+npm install electron electron-builder cross-env
+
+
+Then from tlingit_django/tlingit_app run this to get the backend:
+pip install pyinstaller
+
+https://ivanyu2021.hashnode.dev/electron-django-desktop-app-integrate-javascript-and-python
+
+Doing venv instead of conda
+python3 -m venv venv
+source venv/bin/activate
+which python
+		/Users/nubster/Downloads/mcgill courses/CSC311/python/tlingit_django/venv/bin/python
+pip install -r requirements.txt
+
+cd tlingit_app
+- to package:
+ pyinstaller --onefile manage.py --name tlingit_backend \
+    --add-data "corpus/templates:corpus/templates" \
+    --add-data "db.sqlite3:." \
+    --add-data "json_entries:json_entries"
+- to run
+./dist/tlingit_backend runserver --noreload
+
+Template not loading problem:
+https://hylianhero1997.medium.com/how-to-load-html-in-django-a9040305c972
+https://stackoverflow.com/questions/39193073/location-of-static-files-when-creating-a-django-exe-using-pyinstaller
+https://stackoverflow.com/questions/73891968/pyinstaller-converted-django-project-finds-no-html-file
+https://www.reddit.com/r/django/comments/fc1imz/django_backend_with_electron_frontend_what_are_my/
+
+It was about the location of the templates. Like it needs to be template/corpus/xxx
+
+To start electron app:
+npm start
+
+To package electron:
+rm -rf ../dist_electron
+npm run build
+
+To run:
+open "../dist_electron/mac-arm64/Tlingit App.app"
+
+ls ../dist_electron/mac-arm64/Tlingit\ App.app/Contents/Resources/app/backend/
+
+
+https://www.todesktop.com/works-with/django
+https://beeware.org/
+
+This is the error: 
+
+Uncaught Exception: Error: spawn /Users/nubster/Downloads/mcgill courses/CSC311/python/tlingit_django/dist_electron/mac-arm64/Tlingit App.app/Contents/Resources/app/backend/tlingit_backend ENOENT at ChildProcess._handle.onexit (node:internal/child_process:285:19) at onErrorNT (node:internal/child_process:483:16) at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+
+It doesn’t have the pyinstaller file copied to that location. I don’t know why.
+
+I was missing this:
+"extraResources": [
+  {
+    "from": "../tlingit_app/dist/tlingit_backend",
+    "to": "backend/tlingit_backend",
+    "filter": ["**/*"]
+  }
+],
+
+
+Code signing is turned off with this:
+"mac": {
+  "category": "public.app-category.education",
+  "target": "dmg",
+  "identity": null,
+  "sign": false
+
+
+Regex highlight:
+http://127.0.0.1:8000/corpus/sentences/1/?line_number=2&show_context=true&page_english=63&page_tlingit=62&keyword_regex=^that&scope=both
+
+Text highlight:
+http://127.0.0.1:8000/corpus/sentences/1/?line_number=2&show_context=true&page_english=63&page_tlingit=62&keyword_text=that&scope=both
+
+At tlingit_django activate environment:
+source venv/bin/activate
+
+To get pyinstaller package (run this in tlingit_app):
+pyinstaller --onefile manage.py --name tlingit_backend \
+  --add-data "corpus/templates:corpus/templates" \
+  --add-data "corpus/static:corpus/static" \
+  --add-data "corpus/templatetags:corpus/templatetags" \
+  --add-data "db.sqlite3:."
+
+To run this:
+./dist/tlingit_backend runserver --noreload
+
+To build electron (tlingit_django/electron):
+npm run build
+
+To open the package:
+open "../dist_electron/mac-arm64/Tlingit App.app"

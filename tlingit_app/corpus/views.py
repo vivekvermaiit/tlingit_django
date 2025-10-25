@@ -72,7 +72,7 @@ def sentence_detail(request, id):
     # This origin url is for the case where you go from lines view to sentence to corpus and then when you go back
     # from corpus to sentence, and press back again you want to see the lines view and not loop corpus -> sentence
     # --> corpus
-    # So specifically for the sentence page the back button goes to origin_url if it exists. 
+    # So specifically for the sentence page the back button goes to origin_url if it exists.
     if origin_url:
         context["origin_url"] = origin_url
     return render(request, "corpus/sentence_detail.html", context)
