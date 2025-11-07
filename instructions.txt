@@ -17,10 +17,6 @@ django-admin startproject tlingit_app
 Tutorial here:
 https://docs.djangoproject.com/en/5.2/intro/tutorial01/
 
-To run the server:
-cd tlingit_app
-python manage.py runserver
-
 Create an “app” that will have the models etc for this called corpus
 python manage.py startapp corpus
 
@@ -48,7 +44,7 @@ pip install pyinstaller
 
 https://ivanyu2021.hashnode.dev/electron-django-desktop-app-integrate-javascript-and-python
 
-Doing venv instead of conda
+Doing venv instead of conda (run in tlingit_django):
 python3 -m venv venv
 source venv/bin/activate
 which python
@@ -120,6 +116,12 @@ http://127.0.0.1:8000/corpus/sentences/1/?line_number=2&show_context=true&page_e
 
 At tlingit_django activate environment:
 source venv/bin/activate
+
+To run the server:
+cd tlingit_app
+python manage.py runserver
+Homepage:
+http://127.0.0.1:8000/corpus/lines/
 
 To get pyinstaller package (run this in tlingit_app):
 pyinstaller --onefile manage.py --name tlingit_backend \
