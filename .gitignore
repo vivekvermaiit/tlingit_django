@@ -6,6 +6,7 @@ __pycache__/
 
 .DS_Store
 tlingit_app/build/
+tlingit_app/json_entries/
 tlingit_app/dist/
 dist_electron/
 electron/node_modules/
