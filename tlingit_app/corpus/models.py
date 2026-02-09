@@ -51,3 +51,14 @@ class Line(models.Model):
             models.Index(fields=['line_tlingit']),
             models.Index(fields=['line_english']),
         ]
+
+
+class LineTag(models.Model):
+    tag_tlingit = models.CharField(max_length=255, null=False)
+    line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='tags')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.tag_tlingit
