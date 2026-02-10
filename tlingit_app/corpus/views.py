@@ -14,8 +14,15 @@ from django.db.models import Q
 
 def corpus_entry_detail(request, number):
     corpus_entry = CorpusEntry.objects.filter(number=number).first()
+    lines = Line.objects.filter(sentence__corpus_entry=corpus_entry).order_by("line_number")
+
+    paginator = Paginator(lines, 100)  # 100 lines per page
+    page_obj = paginator.get_page(request.GET.get("page"))
+
     return render(request, "corpus/corpus_entry_detail.html", {
         "corpus_entry": corpus_entry,
+        "lines": page_obj,
+        "page_obj": page_obj,
     })
 
 

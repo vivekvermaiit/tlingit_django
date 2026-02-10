@@ -12,10 +12,45 @@
     <p><strong>Dialect:</strong> {{ corpus_entry.dialect }}</p>
   </div>
 
+  <table>
+    <thead>
+      <tr>
+        <th>Line Number</th>
+        <th>Tlingit</th>
+        <th>English</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in lines %}
+        <tr>
+          <td>{{ line.line_number }}</td>
+          <td>{{ line.line_tlingit }}</td>
+          <td>{{ line.line_english }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <span class="step-links">
+      {% if lines.has_previous %}
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ lines.previous_page_number }}">previous</a>
+      {% endif %}
+
+      <span class="current">
+        Page {{ lines.number }} of {{ lines.paginator.num_pages }}.
+      </span>
+
+      {% if lines.has_next %}
+        <a href="?page={{ lines.next_page_number }}">next</a>
+        <a href="?page={{ lines.paginator.num_pages }}">last &raquo;</a>
+      {% endif %}
+    </span>
+  </div>
 {% else %}
   <p>No entry found with this number.</p>
 {% endif %}
-
 {% if request.META.HTTP_REFERER %}
   <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">⬅ Back</a>
 {% else %}
