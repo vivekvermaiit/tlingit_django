@@ -2,19 +2,39 @@ from django.shortcuts import render, get_object_or_404
 from .models import CorpusEntry
 from .models import Sentence
 from .models import Line
+from .models import LineTag
 from django.core.paginator import Paginator
 from django.db.models import Q
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 # import logging
 # logger = logging.getLogger('corpus')
 # logger.debug("DEBUG TEST from view")
 # logger.warning("WARNING TEST from view")
+from pprint import pprint
 
 
 def corpus_entry_detail(request, number):
     corpus_entry = CorpusEntry.objects.filter(number=number).first()
-    lines = Line.objects.filter(sentence__corpus_entry=corpus_entry).order_by("line_number")
+    lines = Line.objects.filter(sentence__corpus_entry=corpus_entry).select_related("tag").order_by("line_number")
+    # pprint(vars(lines[0]))
+    for line in lines:
+        words = line.line_tlingit.split()
+        if hasattr(line, 'tag') and line.tag:
+            tags = line.tag.tag_tlingit.split()
+            # check tags size is same as words size.
+        else:
+            tags = []
+
+        # Pad tags list if it's shorter than words
+        if len(tags) == 0:
+            while len(tags) < len(words):
+                tags.append('UNK')
+
+        # Create word-tag pairs
+        line.word_tag_pairs = list(zip(words, tags))
 
     paginator = Paginator(lines, 100)  # 100 lines per page
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -126,3 +146,33 @@ def lines_view(request):
         "scope": scope,
         "page_obj": page_obj,
     })
+
+
+@csrf_exempt
+def update_line_tags(request, line_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            print(data)
+            tags = data.get("tags", [])  # List of tags for each word
+            line = Line.objects.get(id=line_id)
+            words = line.line_tlingit.split()  # Split Tlingit line into words
+
+            if len(tags) != len(words):
+                return JsonResponse({"error": "Number of tags must match the number of words in the line."}, status=400)
+
+            # Convert tags to a space-separated string, replacing empty tags with "UNK"
+            tag_tlingit = " ".join(tag if tag else "UNK" for tag in tags)
+
+            # Update or create the LineTag
+            LineTag.objects.update_or_create(
+                line=line,
+                defaults={"tag_tlingit": tag_tlingit},
+            )
+
+            return JsonResponse({"message": "Tags updated successfully."}, status=200)
+        except Line.DoesNotExist:
+            return JsonResponse({"error": "Line not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method."}, status=405)

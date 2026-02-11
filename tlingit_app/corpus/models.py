@@ -54,8 +54,8 @@ class Line(models.Model):
 
 
 class LineTag(models.Model):
-    tag_tlingit = models.CharField(max_length=255, null=False)
-    line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='tags')
+    tag_tlingit = models.TextField()  # Store the complete list of tags as a space-separated string
+    line = models.OneToOneField(Line, on_delete=models.CASCADE, related_name='tag')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -18,6 +18,7 @@
         <th>Line Number</th>
         <th>Tlingit</th>
         <th>English</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -26,6 +27,25 @@
           <td>{{ line.line_number }}</td>
           <td>{{ line.line_tlingit }}</td>
           <td>{{ line.line_english }}</td>
+          <td>
+            <button onclick="toggleEdit({{ line.id }})" id="edit-btn-{{ line.id }}">Edit</button>
+          </td>
+        </tr>
+        <tr id="edit-section-{{ line.id }}" style="display: none;">
+          <td colspan="4">
+            <form id="tags-form-{{ line.id }}" onsubmit="submitTags(event, {{ line.id }})">
+              <div>
+                {% for word, tag in line.word_tag_pairs %}
+                  <div style="display: inline-block; margin-right: 10px;">
+                    <label>{{ word }}</label>
+                    <input type="text" name="tags" value="{{ tag }}" placeholder="UNK">
+                  </div>
+                {% endfor %}
+              </div>
+              <button type="submit">Submit</button>
+              <span id="message-{{ line.id }}" style="margin-left: 10px; color: green; display: none;"></span>
+            </form>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
@@ -51,6 +71,89 @@
 {% else %}
   <p>No entry found with this number.</p>
 {% endif %}
+
+<script>
+  // Get CSRF token from the rendered token in the page
+  // function getCSRFToken() {
+  //   const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+  //   if (tokenElement) {
+  //     return tokenElement.value;
+  //   }
+  //   // Fallback to cookie method
+  //   return getCookie('csrftoken');
+  // }
+
+  function toggleEdit(lineId) {
+    const editSection = document.getElementById(`edit-section-${lineId}`);
+    const editButton = document.getElementById(`edit-btn-${lineId}`);
+    const message = document.getElementById(`message-${lineId}`);
+    if (editSection.style.display === "none") {
+      editSection.style.display = "table-row";
+      editButton.textContent = "Cancel";
+      message.style.display = "none"; // Hide message when opening
+    } else {
+      editSection.style.display = "none";
+      editButton.textContent = "Edit";
+    }
+  }
+
+  async function submitTags(event, lineId) {
+    event.preventDefault();
+    const form = document.getElementById(`tags-form-${lineId}`);
+    const message = document.getElementById(`message-${lineId}`);
+    const tags = Array.from(form.querySelectorAll('input[name="tags"]')).map(input => input.value || "UNK");
+
+    // Get CSRF token
+    // const csrftoken = getCSRFToken();
+
+    try {
+      const response = await fetch(`/corpus/api/lines/${lineId}/tags/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({ tags }),
+      });
+
+      if (response.ok) {
+        message.textContent = "✓ Tags updated successfully!";
+        message.style.color = "green";
+        message.style.display = "inline";
+        // Hide message after 3 seconds
+        setTimeout(() => {
+          message.style.display = "none";
+        }, 3000);
+      } else {
+        const error = await response.json();
+        message.textContent = `✗ Error: ${error.error}`;
+        message.style.color = "red";
+        message.style.display = "inline";
+      }
+    } catch (err) {
+      message.textContent = `✗ Error: ${err.message}`;
+      message.style.color = "red";
+      message.style.display = "inline";
+    }
+  }
+
+  // Helper function to get CSRF token from cookies
+  // function getCookie(name) {
+  //   let cookieValue = null;
+  //   if (document.cookie && document.cookie !== '') {
+  //     const cookies = document.cookie.split(';');
+  //     for (let i = 0; i < cookies.length; i++) {
+  //       const cookie = cookies[i].trim();
+  //       if (cookie.substring(0, name.length + 1) === (name + '=')) {
+  //         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   return cookieValue;
+  // }
+</script>
+
 {% if request.META.HTTP_REFERER %}
   <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">⬅ Back</a>
 {% else %}
