@@ -11,63 +11,69 @@
     <p><strong>Orthography:</strong> {{ corpus_entry.orthography }}</p>
     <p><strong>Dialect:</strong> {{ corpus_entry.dialect }}</p>
   </div>
-
-  <table>
-    <thead>
+<table>
+  <thead>
+    <tr>
+      <th>Line Number</th>
+      <th>Tlingit</th>
+      <th>English</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in lines %}
       <tr>
-        <th>Line Number</th>
-        <th>Tlingit</th>
-        <th>English</th>
-        <th>Actions</th>
+        <td>{{ line.line_number }}</td>
+        <td>{{ line.line_tlingit }}</td>
+        <td>{{ line.line_english }}</td>
+        <td>
+          <button onclick="toggleEdit({{ line.id }})" id="edit-btn-{{ line.id }}">Edit</button>
+        </td>
       </tr>
-    </thead>
-    <tbody>
-      {% for line in lines %}
-        <tr>
-          <td>{{ line.line_number }}</td>
-          <td>{{ line.line_tlingit }}</td>
-          <td>{{ line.line_english }}</td>
-          <td>
-            <button onclick="toggleEdit({{ line.id }})" id="edit-btn-{{ line.id }}">Edit</button>
-          </td>
-        </tr>
-        <tr id="edit-section-{{ line.id }}" style="display: none;">
-          <td colspan="4">
-            <form id="tags-form-{{ line.id }}" onsubmit="submitTags(event, {{ line.id }})">
-              <div>
-                {% for word, tag in line.word_tag_pairs %}
-                  <div style="display: inline-block; margin-right: 10px;">
-                    <label>{{ word }}</label>
-                    <input type="text" name="tags" value="{{ tag }}" placeholder="UNK">
-                  </div>
-                {% endfor %}
+      <tr id="edit-section-{{ line.id }}" style="display: none;">
+        <td colspan="4">
+          <form id="tags-form-{{ line.id }}" onsubmit="submitTags(event, {{ line.id }})" style="padding: 15px;">
+            <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 15px; max-width: 600px;">
+<!--            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px;">-->
+              {% for word, tag in line.word_tag_pairs %}
+<!--                <div style="display: flex; align-items: center; gap: 10px;">-->
+<!--                  <label style="min-width: 150px; font-weight: bold;">{{ word }}</label>-->
+<!--                  <input type="text" name="tags" value="{{ tag }}" placeholder="{{ TAG_PLACEHOLDER }}" style="flex: 1; padding: 5px;">-->
+<!--                </div>-->
+              <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 5px;">
+                <label style="font-weight: bold;">{{ word }}</label>
+                <input type="text" name="tags" value="{{ tag }}" placeholder="{{ TAG_PLACEHOLDER }}" style="width: 100%; padding: 5px;">
               </div>
+              {% endfor %}
+            </div>
+            <div style="margin-top: 15px;">
               <button type="submit">Submit</button>
               <span id="message-{{ line.id }}" style="margin-left: 10px; color: green; display: none;"></span>
-            </form>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+            </div>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-  <div class="pagination">
-    <span class="step-links">
-      {% if lines.has_previous %}
-        <a href="?page=1">&laquo; first</a>
-        <a href="?page={{ lines.previous_page_number }}">previous</a>
-      {% endif %}
+<div class="pagination">
+  <span class="step-links">
+    {% if lines.has_previous %}
+      <a href="?page=1">&laquo; first</a>
+      <a href="?page={{ lines.previous_page_number }}">previous</a>
+    {% endif %}
 
-      <span class="current">
-        Page {{ lines.number }} of {{ lines.paginator.num_pages }}.
-      </span>
-
-      {% if lines.has_next %}
-        <a href="?page={{ lines.next_page_number }}">next</a>
-        <a href="?page={{ lines.paginator.num_pages }}">last &raquo;</a>
-      {% endif %}
+    <span class="current">
+      Page {{ lines.number }} of {{ lines.paginator.num_pages }}.
     </span>
-  </div>
+
+    {% if lines.has_next %}
+      <a href="?page={{ lines.next_page_number }}">next</a>
+      <a href="?page={{ lines.paginator.num_pages }}">last &raquo;</a>
+    {% endif %}
+  </span>
+</div>
 {% else %}
   <p>No entry found with this number.</p>
 {% endif %}
@@ -101,7 +107,7 @@
     event.preventDefault();
     const form = document.getElementById(`tags-form-${lineId}`);
     const message = document.getElementById(`message-${lineId}`);
-    const tags = Array.from(form.querySelectorAll('input[name="tags"]')).map(input => input.value || "UNK");
+    const tags = Array.from(form.querySelectorAll('input[name="tags"]')).map(input => input.value || "{{ TAG_PLACEHOLDER }}");
 
     // Get CSRF token
     // const csrftoken = getCSRFToken();

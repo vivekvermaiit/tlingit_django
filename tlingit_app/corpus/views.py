@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from .constants import TAG_PLACEHOLDER
 
 # import logging
 # logger = logging.getLogger('corpus')
@@ -31,7 +32,8 @@ def corpus_entry_detail(request, number):
         # Pad tags list if it's shorter than words
         if len(tags) == 0:
             while len(tags) < len(words):
-                tags.append('UNK')
+                tags.append("")
+                # tags.append(TAG_PLACEHOLDER)
 
         # Create word-tag pairs
         line.word_tag_pairs = list(zip(words, tags))
@@ -43,6 +45,7 @@ def corpus_entry_detail(request, number):
         "corpus_entry": corpus_entry,
         "lines": page_obj,
         "page_obj": page_obj,
+        'TAG_PLACEHOLDER': TAG_PLACEHOLDER,
     })
 
 
@@ -162,7 +165,7 @@ def update_line_tags(request, line_id):
                 return JsonResponse({"error": "Number of tags must match the number of words in the line."}, status=400)
 
             # Convert tags to a space-separated string, replacing empty tags with "UNK"
-            tag_tlingit = " ".join(tag if tag else "UNK" for tag in tags)
+            tag_tlingit = " ".join(tag if tag else TAG_PLACEHOLDER for tag in tags)
 
             # Update or create the LineTag
             LineTag.objects.update_or_create(
