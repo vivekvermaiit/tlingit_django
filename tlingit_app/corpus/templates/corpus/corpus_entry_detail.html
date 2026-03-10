@@ -11,6 +11,13 @@
     <p><strong>Orthography:</strong> {{ corpus_entry.orthography }}</p>
     <p><strong>Dialect:</strong> {{ corpus_entry.dialect }}</p>
   </div>
+
+{% if request.META.HTTP_REFERER %}
+  <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">⬅ Back</a>
+{% else %}
+  <a href="{% url 'lines' %}" class="btn btn-secondary">Search page</a>
+{% endif %}
+
 <table>
   <thead>
     <tr>

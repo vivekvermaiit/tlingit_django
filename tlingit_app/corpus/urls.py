@@ -6,5 +6,6 @@ urlpatterns = [
     path('sentences/<int:id>/', views.sentence_detail, name='sentence_detail'),
     path("lines/", views.lines_view, name="lines"),
     path("api/lines/<int:line_id>/tags/", views.update_line_tags, name="update_line_tags"),
-
+    path("export_tags/", views.export_tags, name="export_tags"),
+    path("import_tags/", views.import_tags, name="import_tags"),
 ]

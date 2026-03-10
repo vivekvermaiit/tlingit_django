@@ -6,6 +6,7 @@ from .models import LineTag
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .constants import TAG_PLACEHOLDER
@@ -179,3 +180,39 @@ def update_line_tags(request, line_id):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+
+# views.py
+def export_tags(request):
+    tags = list(LineTag.objects.values("line_id", "tag_tlingit"))
+    json_data = json.dumps(tags, indent=2, ensure_ascii=False)
+    response = HttpResponse(json_data, content_type='application/json')
+    response['Content-Disposition'] = 'attachment; filename="tags.json"'
+    return response
+
+
+# Works on line_id level. Creates an entry if it doesn't exist. If it exists, checks if it needs to be updated and
+# updates only if there are changes. Only changes entries passed to it, doesn't delete or change anything that wasn't
+# passed to it.
+@csrf_exempt
+def import_tags(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            updated = 0
+            skipped = 0
+            for tag in data:
+                existing = LineTag.objects.filter(line_id=tag["line_id"]).first()
+                if existing is None:
+                    LineTag.objects.create(line_id=tag["line_id"], tag_tlingit=tag["tag_tlingit"])
+                    updated += 1
+                elif existing.tag_tlingit != tag["tag_tlingit"]:
+                    existing.tag_tlingit = tag["tag_tlingit"]
+                    existing.save()
+                    updated += 1
+                else:
+                    skipped += 1
+            return JsonResponse({"status": "ok", "updated": updated, "skipped": skipped})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    return JsonResponse({"status": "error", "message": "Method not allowed"}, status=405)

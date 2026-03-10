@@ -1,25 +1,57 @@
-<h1>Search for text in Corpus</h1>
+<div style="position: relative;">
+    <h1>Search for text in Corpus</h1>
 
-<form method="get" action="{% url 'lines' %}">
-  <div>
-    <label for="q">Search for word or phrase:</label><br>
-    <input type="text" name="q" id="normal-search" size="40" value="{{ query_text|default:'' }}">
-  </div>
 
-  <div>
-    <label for="regex">Regex Search:</label><br>
-    <input type="text" name="regex" id="regex-search" size="40" value="{{ query_regex|default:'' }}">
-  </div>
+    <!-- Top right panels -->
+    <div style="position: absolute; top: 0; right: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
 
-  <div>
-    <p>Search in:</p>
-    <label><input type="radio" name="scope" value="tlingit" {% if scope == 'tlingit' %}checked{% endif %}> Tlingit</label>
-    <label><input type="radio" name="scope" value="english" {% if scope == 'english' %}checked{% endif %}> English</label>
-    <label><input type="radio" name="scope" value="both" {% if scope == 'both' %}checked{% endif %}> Both</label>
-  </div>
+        <!-- Export/Import panel -->
+        <div style="border: 1px solid #ccc; padding: 8px; border-radius: 5px;">
+            <strong>Export/Import Tlingit Tags</strong>
+            <div style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
+                <button onclick="exportTags()">Export</button>
+                <input type="file" id="import-input" accept=".json" style="display:none" onchange="importTags(event)">
+                <button onclick="document.getElementById('import-input').click()">Import</button>
+                <button onclick="location.reload()">↻</button>
+            </div>
+            <span id="import-message" style="margin-top: 4px; display: none;"></span>
+        </div>
 
-  <button type="submit">Search</button>
-</form>
+        <!-- Go to corpus number panel -->
+        <div style="border: 1px solid #ccc; padding: 8px; border-radius: 5px;">
+            <strong>Go to Corpus Number</strong>
+            <div style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
+                <input type="text" id="corpus-number" placeholder="e.g. 12" style="width: 70px; padding: 3px;"
+                       onkeydown="if(event.key==='Enter') goToCorpus()">
+                <button onclick="goToCorpus()">Go</button>
+            </div>
+        </div>
+
+    </div>
+
+    <form method="get" action="{% url 'lines' %}">
+    <div>
+      <label for="q">Search for word or phrase:</label><br>
+      <input type="text" name="q" id="normal-search" size="40" value="{{ query_text|default:'' }}">
+    </div>
+
+    <div>
+      <label for="regex">Regex Search:</label><br>
+      <input type="text" name="regex" id="regex-search" size="40" value="{{ query_regex|default:'' }}">
+    </div>
+
+    <div>
+      <p>Search in:</p>
+      <label><input type="radio" name="scope" value="tlingit" {% if scope == 'tlingit' %}checked{% endif %}> Tlingit</label>
+      <label><input type="radio" name="scope" value="english" {% if scope == 'english' %}checked{% endif %}> English</label>
+      <label><input type="radio" name="scope" value="both" {% if scope == 'both' %}checked{% endif %}> Both</label>
+    </div>
+
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+
 
 <script>
     const normalInput = document.getElementById("normal-search");
@@ -80,4 +112,66 @@
   <p>No results found.</p>
 {% endif %}
 
+<script>
+// Export
+async function exportTags() {
+    const response = await fetch('/corpus/export_tags/')
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'tags.json'
+    a.click()
+    URL.revokeObjectURL(url)
+}
 
+// Import
+async function importTags(event) {
+    const msg = document.getElementById('import-message')
+    const file = event.target.files[0]
+    const tags = JSON.parse(await file.text())
+
+    try {
+        const response = await fetch('/corpus/import_tags/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tags)
+        })
+        if (!response.ok) {
+            const text = await response.text()
+            msg.textContent = `✗ Server error ${response.status}: ${text}`  // actually show text
+            msg.style.color = 'red'
+        } else {
+            const data = await response.json()
+            if (data.status === 'ok') {
+                msg.textContent = `✓ Updated ${data.updated}, skipped ${data.skipped} unchanged`
+                msg.style.color = 'green'
+            } else {
+                msg.textContent = `✗ ${data.message}`
+                msg.style.color = 'red'
+            }
+        }
+    } catch (e) {
+        msg.textContent = `✗ ${e.message}`
+        msg.style.color = 'red'
+    }
+
+    msg.style.display = 'inline'
+    setTimeout(() => msg.style.display = 'none', 10000)  // hide after 3 seconds
+}
+
+</script>
+<script>
+function goToCorpus() {
+    const number = document.getElementById('corpus-number').value
+    if (!number) return
+    const padded = String(number).padStart(3, '0')
+    window.location.href = `/corpus/entries/${padded}/`
+}
+</script>
+
+<!--<button onclick="exportTags()">Export Tags</button>-->
+
+<!--<input type="file" id="import-input" accept=".json" style="display:none" onchange="importTags(event)">-->
+<!--<button onclick="document.getElementById('import-input').click()">Import Tags</button>-->
+<!--<span id="import-message" style="margin-left: 10px; display:none;"></span>-->

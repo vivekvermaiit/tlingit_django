@@ -138,3 +138,9 @@ npm run build
 
 To open the package:
 open "../dist_electron/mac-arm64/Tlingit App.app"
+
+## Flow for tagging ##
+1) Before starting your updates, pull latest tag file from github
+2) Import this file using the Import button
+3) Make your changes.
+4) Export the tag file and upload to github.
