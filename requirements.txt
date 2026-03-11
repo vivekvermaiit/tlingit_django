@@ -1,2 +1,9 @@
-django
-pyinstaller
+altgraph==0.17.4
+asgiref==3.10.0
+Django==5.2.7
+macholib==1.16.3
+packaging==25.0
+pyinstaller==6.16.0
+pyinstaller-hooks-contrib==2025.9
+setuptools==80.9.0
+sqlparse==0.5.3

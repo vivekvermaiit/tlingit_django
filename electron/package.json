@@ -22,11 +22,15 @@
       "**/*"
     ],
 
+
     "extraResources": [
       {
         "from": "../tlingit_app/dist/tlingit_backend",
-        "to": "backend/tlingit_backend",
-        "filter": ["**/*"]
+        "to": "backend/tlingit_backend"
+      },
+      {
+        "from": "../tlingit_app/dist/tlingit_backend.exe",
+        "to": "backend/tlingit_backend.exe"
       }
     ],
 

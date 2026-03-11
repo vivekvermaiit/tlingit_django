@@ -14,8 +14,6 @@ const START_TIMEOUT_MS = 20000; // max time to wait for server (20s)
 const POLL_INTERVAL_MS = 300;   // how often to poll
 
 function getDjangoBinaryPath() {
-  // In development: ../tlingit_app/dist/tlingit_backend
-  // In production: bundled inside resources/app/backend/
   let binary;
 
   if (app.isPackaged) {

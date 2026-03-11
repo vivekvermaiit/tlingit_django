@@ -144,3 +144,37 @@ open "../dist_electron/mac-arm64/Tlingit App.app"
 2) Import this file using the Import button
 3) Make your changes.
 4) Export the tag file and upload to github.
+
+
+## how to pass around mac app
+Instructions (working)
+
+Tar the app
+tar -czf tlingit-app.tar.gz Tlingit\ App.app/
+
+Download and unzip
+tar -xzf tlingit-app.tar.gz
+Or by double clicking
+
+Remove quarantine flag
+xattr -d com.apple.quarantine Tlingit\ App.app
+
+Should run after this!
+
+
+## To build linux version
+have docker installed
+
+from tlingit_app:
+./build_linux.sh
+
+To build electron (tlingit_django/electron):
+docker run --platform linux/amd64 \
+  -v "$(pwd)":/app \
+  -v "$(pwd)/../tlingit_app/dist":/tlingit_app/dist \
+  -v "$(pwd)/../dist_electron":/dist_electron \
+  -w /app \
+  node:20 bash -c "
+    npm install &&
+    npm run build -- --linux
+  "
