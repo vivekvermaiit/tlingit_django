@@ -140,7 +140,7 @@ def lines_view(request):
                 Q(line_english__regex=query_regex)
             )
 
-    paginator = Paginator(lines.order_by("line_number"), 20)
+    paginator = Paginator(lines.order_by("sentence__corpus_entry__number", "line_number"), 20)
     page_obj = paginator.get_page(request.GET.get("page"))
 
     return render(request, "corpus/lines.html", {
@@ -149,6 +149,7 @@ def lines_view(request):
         "query_regex": query_regex,
         "scope": scope,
         "page_obj": page_obj,
+        "total": paginator.count,
     })
 
 

@@ -19,7 +19,7 @@
 
         <!-- Go to corpus number panel -->
         <div style="border: 1px solid #ccc; padding: 8px; border-radius: 5px;">
-            <strong>Go to Corpus Number</strong>
+            <strong>Go to Entry</strong>
             <div style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
                 <input type="text" id="corpus-number" placeholder="e.g. 12" style="width: 70px; padding: 3px;"
                        onkeydown="if(event.key==='Enter') goToCorpus()">
@@ -67,16 +67,17 @@
 </script>
 
 {% if page_obj %}
-  <h2>Results:</h2>
+  <h2>Results (Total {{ total }}):</h2>
   <table border="1" cellpadding="5">
     <thead>
       <tr>
         <th>Tlingit Line</th>
         <th>English Line</th>
-        <th>Page (Tlingit)</th>
-        <th>Page (English)</th>
-        <th>Corpus Number</th>
-        <th>Corpus Title</th>
+        <th>Line #</th>
+        <th style="white-space: nowrap;">Page (T)</th>
+        <th style="white-space: nowrap;">Page (E)</th>
+        <th>Entry</th>
+        <th>Entry Title</th>
         <th>Sentence Link</th>
       </tr>
     </thead>
@@ -85,6 +86,7 @@
         <tr>
           <td>{{ line.line_tlingit }}</td>
           <td>{{ line.line_english }}</td>
+          <td>{{ line.line_number }}</td>
           <td>{{ line.page_tlingit }}</td>
           <td>{{ line.page_english }}</td>
           <td><a href="{% url 'corpus_entry_detail' line.sentence.corpus_entry.number %}">{{ line.sentence.corpus_entry.number }}</a></td>
