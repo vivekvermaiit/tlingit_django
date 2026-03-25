@@ -1,3 +1,7 @@
+{% load highlight %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'corpus/css/sentences.css' %}">
+
 <div style="position: relative;">
     <h1>Search for text in Corpus</h1>
 
@@ -47,6 +51,12 @@
       <label><input type="radio" name="scope" value="both" {% if scope == 'both' %}checked{% endif %}> Both</label>
     </div>
 
+        <div>
+      <label>
+        <input type="checkbox" name="highlight" value="on" {% if highlight %}checked{% endif %}>
+        Highlight matches
+      </label>
+    </div>
     <button type="submit">Search</button>
   </form>
 </div>
@@ -65,7 +75,6 @@
         normalInput.disabled = regexInput.value.length > 0;
     });
 </script>
-
 {% if page_obj %}
   <h2>Results (Total {{ total }}):</h2>
   <table border="1" cellpadding="5">
@@ -84,8 +93,20 @@
     <tbody>
       {% for line in page_obj %}
         <tr>
-          <td>{{ line.line_tlingit }}</td>
-          <td>{{ line.line_english }}</td>
+            <td>
+              {% if highlight and scope != "english" %}
+                {{ line.line_tlingit|highlight_text:combo }}
+              {% else %}
+                {{ line.line_tlingit }}
+              {% endif %}
+            </td>
+            <td>
+              {% if highlight and scope != "tlingit" %}
+                {{ line.line_english|highlight_text:combo }}
+              {% else %}
+                {{ line.line_english }}
+              {% endif %}
+            </td>
           <td>{{ line.line_number }}</td>
           <td>{{ line.page_tlingit }}</td>
           <td>{{ line.page_english }}</td>
@@ -103,11 +124,11 @@
 
   <div class="pagination">
     {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}{% if query_text %}&q={{ query_text }}{% endif %}{% if query_regex %}&regex={{ query_regex }}{% endif %}&scope={{ scope }}">Previous</a>
+      <a href="?page={{ page_obj.previous_page_number }}{% if query_text %}&q={{ query_text }}{% endif %}{% if query_regex %}&regex={{ query_regex }}{% endif %}&scope={{ scope }}&highlight={{ highlight|yesno:"on," }}">Previous</a>
     {% endif %}
     Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
     {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}{% if query_text %}&q={{ query_text }}{% endif %}{% if query_regex %}&regex={{ query_regex }}{% endif %}&scope={{ scope }}">Next</a>
+      <a href="?page={{ page_obj.next_page_number }}{% if query_text %}&q={{ query_text }}{% endif %}{% if query_regex %}&regex={{ query_regex }}{% endif %}&scope={{ scope }}&highlight={{ highlight|yesno:"on," }}">Next</a>
     {% endif %}
   </div>
 {% elif query_text or query_regex %}

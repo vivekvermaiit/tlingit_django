@@ -28,11 +28,24 @@
     {% endif %}
 
     <div class="sentence main">
-      <strong>Sentence {{ line_number }}:</strong><br>
-      {% if scope == "both" or scope == "tlingit" %}
-        {{ sentence.sentence_tlingit|highlight_text:combo }}
+      <strong>{{ line_label }}:</strong><br>
+      {% if sentence_lines|length == 1 %}
+        {% with line=sentence_lines.0 %}
+          {% if scope == "both" or scope == "tlingit" %}
+            {{ line.line_tlingit|highlight_text:combo }}
+          {% else %}
+            {{ line.line_tlingit }}
+          {% endif %}
+        {% endwith %}
       {% else %}
-        {{ sentence.sentence_tlingit }}
+        {% for line in sentence_lines %}
+          {% if scope == "both" or scope == "tlingit" %}
+            {{ line.line_tlingit|highlight_text:combo }}
+          {% else %}
+            {{ line.line_tlingit }}
+          {% endif %}
+          {% if not forloop.last %} | {% endif %}
+        {% endfor %}
       {% endif %}
     </div>
 
@@ -58,11 +71,24 @@
     {% endif %}
 
     <div class="sentence main">
-      <strong>Sentence {{ line_number }}:</strong><br>
-      {% if scope == "both" or scope == "english" %}
-        {{ sentence.sentence_english|highlight_text:combo }}
+      <strong>{{ line_label }}:</strong><br>
+      {% if sentence_lines|length == 1 %}
+        {% with line=sentence_lines.0 %}
+          {% if scope == "both" or scope == "english" %}
+            {{ line.line_english|highlight_text:combo }}
+          {% else %}
+            {{ line.line_english }}
+          {% endif %}
+        {% endwith %}
       {% else %}
-        {{ sentence.sentence_english }}
+        {% for line in sentence_lines %}
+          {% if scope == "both" or scope == "english" %}
+            {{ line.line_english|highlight_text:combo }}
+          {% else %}
+            {{ line.line_english }}
+          {% endif %}
+          {% if not forloop.last %} | {% endif %}
+        {% endfor %}
       {% endif %}
     </div>
 

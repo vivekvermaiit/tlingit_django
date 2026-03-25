@@ -60,6 +60,13 @@ def sentence_detail(request, id):
     # keyword_text -> text to highlight
     sentence = get_object_or_404(Sentence.objects.select_related('corpus_entry'), pk=id)
     corpus_entry = sentence.corpus_entry
+    sentence_lines = sentence.lines.all().order_by('line_number')
+    line_numbers = list(sentence_lines.values_list('line_number', flat=True))
+
+    if len(line_numbers) == 1:
+        line_label = f"Line {line_numbers[0]}"
+    else:
+        line_label = "Lines " + " | ".join(str(n) for n in line_numbers)
 
     keyword_text = request.GET.get("keyword_text") or ""
     keyword_regex = request.GET.get("keyword_regex") or ""
@@ -97,7 +104,10 @@ def sentence_detail(request, id):
         "scope": scope,
         "prev_sentence": prev_sentence,
         "next_sentence": next_sentence,
-        "combo": f"{keyword_text},{keyword_regex}"
+        "combo": f"{keyword_text},{keyword_regex}",
+        "sentence_lines": sentence_lines,
+        "line_label": line_label,
+
     }
 
     # This origin url is for the case where you go from lines view to sentence to corpus and then when you go back
@@ -143,6 +153,8 @@ def lines_view(request):
     paginator = Paginator(lines.order_by("sentence__corpus_entry__number", "line_number"), 20)
     page_obj = paginator.get_page(request.GET.get("page"))
 
+    highlight = request.GET.get("highlight") == "on"
+
     return render(request, "corpus/lines.html", {
         "lines": page_obj,
         "query_text": query_text,
@@ -150,6 +162,9 @@ def lines_view(request):
         "scope": scope,
         "page_obj": page_obj,
         "total": paginator.count,
+        "highlight": highlight,
+        "combo": f"{query_text or ''},{query_regex or ''}",
+
     })
 
 
