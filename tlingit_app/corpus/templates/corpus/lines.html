@@ -44,20 +44,21 @@
       <input type="text" name="regex" id="regex-search" size="40" value="{{ query_regex|default:'' }}">
     </div>
 
-    <div>
+    <div >
       <p>Search in:</p>
       <label><input type="radio" name="scope" value="tlingit" {% if scope == 'tlingit' %}checked{% endif %}> Tlingit</label>
       <label><input type="radio" name="scope" value="english" {% if scope == 'english' %}checked{% endif %}> English</label>
       <label><input type="radio" name="scope" value="both" {% if scope == 'both' %}checked{% endif %}> Both</label>
     </div>
 
-        <div>
-      <label>
+    <div style="margin-top: 8px;">
+        <label>
         <input type="checkbox" name="highlight" value="on" {% if highlight %}checked{% endif %}>
         Highlight matches
       </label>
     </div>
-    <button type="submit">Search</button>
+
+    <button type="submit" style="margin-top: 8px;">Search</button>
   </form>
 </div>
 
