@@ -38,8 +38,11 @@
     "mac": {
       "category": "public.app-category.education",
       "target": "dmg",
-      "identity": null,
-      "sign": false
+      "identity": "First Last (XYAYAH)",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.plist",
+      "entitlementsInherit": "entitlements.plist"
     },
     "win": {
       "target": "nsis"

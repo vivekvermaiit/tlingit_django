@@ -161,6 +161,10 @@ xattr -d com.apple.quarantine Tlingit\ App.app
 
 Should run after this!
 
+After the code signing with license.
+If you unzip from terminal you don't have to do anything else.
+If you double-click and unzip then go to Privacy and Security and allow the app to run.
+
 
 ## To build linux version
 have docker installed
@@ -184,3 +188,9 @@ python manage.py shell
 from corpus.models import CorpusEntry
 entry = CorpusEntry.objects.filter(number="032").first()
 entry.delete()
+
+To sign with cert:
+Double click the .p12 file and enter pwd. It will import it to your keychain.
+And then in package.json enter the identity field.
+
+
