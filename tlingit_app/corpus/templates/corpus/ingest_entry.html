@@ -1,0 +1,29 @@
+<h1>Ingest Corpus Entry</h1>
+
+<p>Upload a Tlingit text file to update tags on an existing entry, or upload both files to create or update a full entry.</p>
+
+{% if message %}
+  <p id="ingest-message" style="color: {% if success %}green{% else %}red{% endif %}; font-weight: bold;">
+    {{ message }}
+  </p>
+  <script>
+    setTimeout(() => {
+      document.getElementById('ingest-message').style.display = 'none';
+    }, 10000);
+  </script>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  <div style="margin-bottom: 10px;">
+    <label><strong>Tlingit Text File</strong> (required)</label><br>
+    <input type="file" name="tlingit_file" accept=".txt">
+  </div>
+  <div style="margin-bottom: 10px;">
+    <label><strong>English Translation File</strong> (optional — required for new entries)</label><br>
+    <input type="file" name="english_file" accept=".txt">
+  </div>
+  <button type="submit">Ingest</button>
+</form>
+
+<br>
+<a href="{% url 'lines' %}">← Back to Search</a>

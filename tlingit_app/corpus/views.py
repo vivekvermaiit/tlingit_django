@@ -9,7 +9,11 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+import os
 from .constants import TAG_PLACEHOLDER
+from .parse_tagged_txt import parse_txt_to_json, parse_metadata
+from .ingest import ingest_json
+from django.conf import settings
 
 # import logging
 # logger = logging.getLogger('corpus')
@@ -232,3 +236,90 @@ def import_tags(request):
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
     return JsonResponse({"status": "error", "message": "Method not allowed"}, status=405)
+
+
+# If there are major changes to Entry that changes number of lines or sentences then
+# Delete the corpus entry and adjacent tables, and upload both text and translation files.
+# After this, repackage the app and send that out. Export tags.json and update github.
+# The update from tags.json will not work if the line_ids have changed. People will need a new app version.
+
+# General purpose ingestion. It can be with tags or without.
+# If the entry exists already, the input file needs to have same number of sentences & lines
+# and it will update the parts of corpus or tags that need to be updated.
+# Really important: If there are changes in corpus please give both Tlingit and English file.
+# If you only give Tlingit file with/without tags corpus isn't updated. Only tags are.
+# If entry doesn’t exist it will create the entry.
+# If you want to change the number of lines, you should delete the entry in corpus in DB, ingest this file,
+# update tags.json on GitHub, and push out a new app version.
+# The API works by creating a new json structure, which is then ingested.
+
+# Expected behaviour tests:
+# 1. No tags, both file given, doesn’t exist in DB - Json file is created properly and is exactly the same.
+# 1.1 Check DB entries are created exactly the same.
+# Change original 32 to 33 in DB, then add 32 back. Check they're same by running django console:
+# python manage.py shell
+# from corpus.models import Line, CorpusEntry
+#
+# lines1 = list(Line.objects.filter(sentence__corpus_entry__number="032").order_by('line_number'))
+# lines2 = list(Line.objects.filter(sentence__corpus_entry__number="033").order_by('line_number'))
+#
+# print(len(lines1), len(lines2))
+#
+# diffs = [(l1.line_number, l1.line_tlingit, l2.line_tlingit) for l1, l2 in zip(lines1, lines2) if l1.line_tlingit != l2.line_tlingit]
+# print(diffs)
+# 2. If entry doesn't exist and If I give only the tlingit file or English file it shouldn’t work.
+# 3. Once the entry is in DB, I can give tlingit file with different number of lines and it shouldn’t work.
+# 4. If there is any minor change in entry only those rows should be updated.
+# 5. I give Tlingit files with tags, it should create tags.
+# 6. I give Tlingit files with new tags, it should update tags that have changed or are new.
+@csrf_exempt
+def ingest_entry(request):
+    message = None
+    success = None
+
+    if request.method == "POST":
+        tlingit_file = request.FILES.get("tlingit_file")
+        english_file = request.FILES.get("english_file")
+
+        if not tlingit_file:
+            message = "Tlingit file is required."
+            success = False
+        else:
+            tlingit_lines = tlingit_file.read().decode("utf-8").splitlines()
+            english_lines = None
+
+            if english_file:
+                english_lines = english_file.read().decode("utf-8").splitlines()
+
+            # Extract number from metadata using shared function
+            metadata = parse_metadata(tlingit_lines)
+            number = metadata.get("number", "")
+
+            # If no english file, entry must already exist
+            if not english_lines:
+                if not CorpusEntry.objects.filter(number=number).exists():
+                    message = f"Entry {number} does not exist. Please provide both Tlingit and English files to create a new entry."
+                    success = False
+                    return render(request, "corpus/ingest_entry.html", {"message": message, "success": success})
+
+            try:
+                json_data, tag_data, tlingit_clean = parse_txt_to_json(tlingit_lines, english_lines)
+
+                # json_data is None if only tlingit file is given.
+                if json_data is not None:
+                    json_dir = os.path.join(settings.BASE_DIR, "json_entries")
+                    os.makedirs(json_dir, exist_ok=True)
+                    json_path = os.path.join(json_dir, f"{number}.json")
+                    with open(json_path, "w", encoding="utf-8") as f:
+                        json.dump(json_data, f, indent=2, ensure_ascii=False)
+
+                # success, message = True, "ingested successfully"
+                success, message = ingest_json(json_data, tag_data, tlingit_clean, number=number)
+            except Exception as e:
+                success = False
+                message = f"Error parsing file: {str(e)}"
+
+    return render(request, "corpus/ingest_entry.html", {
+        "message": message,
+        "success": success
+    })
