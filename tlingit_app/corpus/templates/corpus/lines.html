@@ -31,6 +31,13 @@
             </div>
         </div>
 
+        <!-- Ingest panel -->
+        <div style="border: 1px solid #ccc; padding: 8px; border-radius: 5px;">
+<!--            <strong></strong>-->
+            <div style="margin-top: 6px;">
+                <a href="{% url 'ingest_entry' %}"><button>Import (Tagged) Entry</button></a>
+            </div>
+        </div>
     </div>
 
     <form method="get" action="{% url 'lines' %}">

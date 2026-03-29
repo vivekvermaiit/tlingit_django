@@ -323,3 +323,64 @@ def ingest_entry(request):
         "message": message,
         "success": success
     })
+
+
+# Export the tags for a given entry in the same format as the original tagged text files.
+def export_entry_tags(request, number):
+    entry = get_object_or_404(CorpusEntry, number=number)
+    lines = Line.objects.filter(
+        sentence__corpus_entry=entry
+    ).select_related('tag').order_by('line_number')
+
+    output_lines = []
+
+    # Header metadata
+    output_lines.append(f"{{Number = {entry.number}}}")
+    output_lines.append(f"{{Type = Text}}")
+    output_lines.append(f"{{Title = {entry.title}}}")
+    if entry.author:
+        output_lines.append(f"{{Author = {entry.author}}}")
+    if entry.clan:
+        output_lines.append(f"{{Clan = {entry.clan}}}")
+    if entry.source:
+        output_lines.append(f"{{Source = {entry.source}}}")
+    if entry.transcriber:
+        output_lines.append(f"{{Transcriber = {entry.transcriber}}}")
+    if entry.orthography:
+        output_lines.append(f"{{Orthography = {entry.orthography}}}")
+    if entry.dialect:
+        output_lines.append(f"{{Dialect = {entry.dialect}}}")
+
+    current_page = None
+    for line in lines:
+        # Insert page marker when page changes
+        if line.page_tlingit != current_page:
+            current_page = line.page_tlingit
+            output_lines.append(f"{{Page = {current_page}}}")
+
+        words = line.line_tlingit.split()
+
+        if hasattr(line, 'tag') and line.tag:
+            tags = line.tag.tag_tlingit.split()
+            # Pad tags if shorter than words
+            while len(tags) < len(words):
+                tags.append(TAG_PLACEHOLDER)
+
+            tagged_tokens = []
+            for word, tag in zip(words, tags):
+                if tag == TAG_PLACEHOLDER:
+                    tagged_tokens.append(word)
+                else:
+                    tagged_tokens.append(f"{word}|{tag}")
+            line_text = " ".join(tagged_tokens)
+        else:
+            line_text = line.line_tlingit
+
+        output_lines.append(f"{line.line_number}\t{line_text}")
+
+    content = "\n".join(output_lines)
+    response = HttpResponse(content, content_type='text/plain; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="{number}_tagged.txt"'
+    return response
+
+

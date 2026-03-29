@@ -178,3 +178,9 @@ docker run --platform linux/amd64 \
     npm install &&
     npm run build -- --linux
   "
+
+To delete an entry
+python manage.py shell
+from corpus.models import CorpusEntry
+entry = CorpusEntry.objects.filter(number="032").first()
+entry.delete()

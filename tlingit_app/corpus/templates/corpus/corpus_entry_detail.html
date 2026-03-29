@@ -1,6 +1,17 @@
 {% if corpus_entry %}
   <h1>{{ corpus_entry.title }}</h1>
 
+ <div style="position: absolute; top: 0; right: 0; font-size: 13px;">
+      <div style="border: 1px solid #ccc; padding: 8px; border-radius: 5px;">
+          <strong>Export</strong>
+          <div style="margin-top: 6px;">
+              <a href="{% url 'export_entry_tags' corpus_entry.number %}">
+                  <button>Download Tagged Tlingit</button>
+              </a>
+          </div>
+      </div>
+  </div>
+
   <div>
     <p><strong>Number:</strong> {{ corpus_entry.number }}</p>
     <p><strong>Author:</strong> {{ corpus_entry.author }}</p>
