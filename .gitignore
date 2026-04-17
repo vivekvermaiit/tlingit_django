@@ -10,3 +10,5 @@ tlingit_app/json_entries/
 tlingit_app/dist/
 dist_electron/
 electron/node_modules/
+tlingit_app/dist_x86/
+node_modules/

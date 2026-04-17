@@ -38,12 +38,17 @@
     "mac": {
       "category": "public.app-category.education",
       "target": "dmg",
-      "identity": "First Last (XYAYAH)",
+      "identity": "",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "entitlements.plist",
-      "entitlementsInherit": "entitlements.plist"
+      "entitlementsInherit": "entitlements.plist",
+      "binaries": [
+          "Contents/Resources/backend/tlingit_backend"
+        ]
     },
+    "afterAllArtifactBuild": "scripts/notarize.js",
+
     "win": {
       "target": "nsis"
     },
@@ -52,6 +57,7 @@
     }
   },
   "devDependencies": {
+    "@electron/notarize": "^2.5.0",
     "electron": "^38.3.0",
     "electron-builder": "^26.0.12"
   }
