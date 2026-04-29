@@ -14,12 +14,26 @@ const START_TIMEOUT_MS = 20000; // max time to wait for server (20s)
 const POLL_INTERVAL_MS = 300;   // how often to poll
 
 function getDjangoBinaryPath() {
+  if (!app.isPackaged) {
+    return path.join(__dirname, '..', 'tlingit_app', 'dist', 'tlingit_backend');
+  }
+
   let binary;
 
-  if (app.isPackaged) {
-    binary = path.join(process.resourcesPath, 'backend', 'tlingit_backend');
+  if (process.platform === 'darwin') {
+    // mac: separate binaries per arch
+    const arch = process.arch; // 'x64' or 'arm64'
+    binary = path.join(process.resourcesPath, 'backend', arch, 'tlingit_backend');
+
+    // debug
+    console.log('Platform:', process.platform);
+    console.log('Arch:', arch);
+    console.log('Binary path:', binary);
+    console.log('Binary exists:', require('fs').existsSync(binary));
+
   } else {
-    binary = path.join(__dirname, '..', 'tlingit_app', 'dist', 'tlingit_backend');
+    // windows / linux: single binary
+    binary = path.join(process.resourcesPath, 'backend', 'tlingit_backend');
   }
 
   if (process.platform === 'win32') {

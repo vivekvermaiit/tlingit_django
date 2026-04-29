@@ -15,10 +15,6 @@
       "output": "../dist_electron"
     },
     "files": [
-      {
-        "from": "../tlingit_app/dist/tlingit_backend",
-        "to": "backend/tlingit_backend"
-      },
       "**/*"
     ],
 
@@ -26,7 +22,11 @@
     "extraResources": [
       {
         "from": "../tlingit_app/dist/tlingit_backend",
-        "to": "backend/tlingit_backend"
+        "to": "backend/arm64/tlingit_backend"
+      },
+      {
+        "from": "../tlingit_app/dist_x86/tlingit_backend",
+        "to": "backend/x64/tlingit_backend"
       },
       {
         "from": "../tlingit_app/dist/tlingit_backend.exe",
@@ -37,15 +37,21 @@
 
     "mac": {
       "category": "public.app-category.education",
-      "target": "dmg",
+      "target": {
+        "target": "dmg",
+        "arch": ["universal"]
+      },
       "identity": "",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "entitlements.plist",
       "entitlementsInherit": "entitlements.plist",
       "binaries": [
-          "Contents/Resources/backend/tlingit_backend"
-        ]
+        "Contents/Resources/backend/arm64/tlingit_backend",
+        "Contents/Resources/backend/x64/tlingit_backend"
+      ],
+      "x64ArchFiles": "**/*"
+
     },
     "afterAllArtifactBuild": "scripts/notarize.js",
 
